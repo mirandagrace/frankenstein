@@ -37,8 +37,8 @@ impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
         }
     }
     
-    pub fn result(&self) -> T {
-        self.population[0]
+    pub fn result(&self) -> &T {
+        &self.population[0]
     }
     
     pub fn run_fitness(&mut self, threshold: f64){
