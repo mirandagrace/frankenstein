@@ -14,7 +14,8 @@ pub trait Evolvable : rand::Rand + Clone {
 #[derive(Clone)]
 pub struct Experiment<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> {
     pub population: Vec<T>,
-    selection: F
+    selection: F,
+    pub trials: usize
 }
 
 impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
@@ -28,8 +29,12 @@ impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
         Experiment {population: population, selection: selection}
     }
     
-    pub fn get_best(&self) -> &T {
-        &self.population[0]
+    pub fn result(&self) -> &T {
+        self.population[0]
+    }
+    
+    pub fn score(&self) -> f64 {
+        self.population[0].fitness()
     }
     
     fn select(&self) -> Vec<&T> {
@@ -37,7 +42,7 @@ impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
         f(&self.population)
     }
     
-    fn trial(&mut self) {
+    pub fn trial(&mut self) {
         let mut children: Vec<T> = Vec::with_capacity(self.population.len());
         loop {
             children.push(Evolvable::mate(self.select()));
@@ -45,14 +50,34 @@ impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
         }
         children.sort_by(Evolvable::rank);
         self.population = children;
+        self.trials += 1;
     }
     
-    pub fn run(&mut self, trials: usize) {
+    pub fn run_ntimes(&mut self, trials: usize) {
         let mut n_trials = 0;
         loop {
             if n_trials == trials { break ; }
             self.trial();
             n_trials += 1;
+            self.trials += 1;
+        }
+    }
+    
+    pub fn run_fitness(&mut self, threshold: f64){
+        loop {
+            if self.score() > threshold { break; }
+            self.trial();
+            self.trials += 1;
+        }
+    }
+    
+    pub fn run_until(&mut self, trials: usize, threshold: f64) {
+        let mut n_trials = 0;
+        loop {
+            if n_trials == trials || self.score() > threshold { break ; }
+            self.trial();
+            n_trials += 1;
+            self.trials += 1;
         }
     }
 }
