@@ -1,3 +1,6 @@
+#![crate_id = "frankenstein"]
+#![crate_type="lib"]
+
 extern crate rand;
 use std::cmp::Ordering;
 
