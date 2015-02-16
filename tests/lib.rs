@@ -44,7 +44,7 @@ impl Evolvable for EvolvableFloat {
     }
 
     fn fitness(&self) -> f64 {
-        2.0 / ((self.value - PI) * (self.value - PI))
+        1.0 / Float::abs(self.value - PI)
     }
 }
       
@@ -57,7 +57,7 @@ fn evolveable_float_mate_test() {
 
 #[test]
 fn evolveable_float_fitness_test() {
-    let expected = 2.0 / ((4.5 - PI) * (4.5 - PI)) ;
+    let expected = 1.0 / (4.5 - PI) ;
     assert_eq!(EvolvableFloat::new(4.5).fitness(), expected);
 }
 
@@ -66,10 +66,10 @@ fn experiment_test() {
     let mut my_exp = Experiment::new(10, select);
     assert_eq!(my_exp.population.len(), 10);
     let start_score = my_exp.population[0].fitness();
-    my_exp.run(2);
+    my_exp.run_trials(3);
     let end_score = my_exp.population[0].fitness();
     assert!(start_score < end_score, "start_score = {}, end_score = {}", start_score, end_score);
-    my_exp.run(10);
+    my_exp.run_trials(10);
     assert!(Float::abs(my_exp.population[0].value - PI) < 0.1, "value = {}", my_exp.population[0].value);
 }
 

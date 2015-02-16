@@ -15,7 +15,6 @@ pub trait Evolvable : rand::Rand + Clone {
 pub struct Experiment<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> {
     pub population: Vec<T>,
     selection: F,
-    pub trials: usize
 }
 
 impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
@@ -29,8 +28,42 @@ impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
         Experiment {population: population, selection: selection}
     }
     
-    pub fn result(&self) -> &T {
+    pub fn reset(&mut self) {
+        let size = self.population.len();
+        self.population.clear();
+        loop {
+            self.population.push(rand::random());
+            if self.population.len() == size { break; }
+        }
+    }
+    
+    pub fn result(&self) -> T {
         self.population[0]
+    }
+    
+    pub fn run_fitness(&mut self, threshold: f64){
+        loop {
+            if self.score() > threshold { break; }
+            self.trial();
+        }
+    }
+    
+    pub fn run_trials(&mut self, trials: usize) {
+        let mut n_trials = 0;
+        loop {
+            if n_trials == trials { break ; }
+            self.trial();
+            n_trials += 1;
+        }
+    }
+    
+    pub fn run_until(&mut self, trials: usize, threshold: f64) {
+        let mut n_trials = 0;
+        loop {
+            if n_trials == trials || self.score() > threshold { break ; }
+            self.trial();
+            n_trials += 1;
+        }
     }
     
     pub fn score(&self) -> f64 {
@@ -50,34 +83,5 @@ impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
         }
         children.sort_by(Evolvable::rank);
         self.population = children;
-        self.trials += 1;
-    }
-    
-    pub fn run_ntimes(&mut self, trials: usize) {
-        let mut n_trials = 0;
-        loop {
-            if n_trials == trials { break ; }
-            self.trial();
-            n_trials += 1;
-            self.trials += 1;
-        }
-    }
-    
-    pub fn run_fitness(&mut self, threshold: f64){
-        loop {
-            if self.score() > threshold { break; }
-            self.trial();
-            self.trials += 1;
-        }
-    }
-    
-    pub fn run_until(&mut self, trials: usize, threshold: f64) {
-        let mut n_trials = 0;
-        loop {
-            if n_trials == trials || self.score() > threshold { break ; }
-            self.trial();
-            n_trials += 1;
-            self.trials += 1;
-        }
     }
 }
