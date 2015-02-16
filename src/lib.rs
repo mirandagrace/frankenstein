@@ -31,6 +31,10 @@ impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
         Experiment {population: population, selection: selection}
     }
     
+    pub fn get_best(&self) -> &T {
+        &self.population[0]
+    }
+    
     fn select(&self) -> Vec<&T> {
         let ref f = self.selection;
         f(&self.population)
