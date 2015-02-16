@@ -1,0 +1,7 @@
+[package]
+name = "frankenstein"
+version = "0.0.1"
+authors = ["miranda"]
+
+[dependencies]
+rand = "0.1"
