@@ -82,5 +82,6 @@ This function will run the experiment until either the maximum number of trials 
       
       my_experiment.run_until(100, 3000.0): \\ will run for 100 trials, 
                                             \\ or until my_experiment.score() 
-                                            \\ is greater than 3000.0, whichever comes first. 
+                                            \\ is greater than 3000.0, 
+                                            \\ whichever comes first. 
       my_experiment.run_until(100, None); \\ will run for 100 trials
