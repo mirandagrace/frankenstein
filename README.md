@@ -37,7 +37,18 @@ The Experiment struct is the core of the frankenstein library. This simple struc
 
       pub struct Experiment<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> {
             pub population: Vec<T>,
-            selection: F
+            selection: F,
       }
 
-The population field stores the current population of whatever it is you are trying to evolve, and selection stores a function that will (usually randomly) select some subset of the population to be passed on to the mate method described earlier.
+The population field stores the current population of whatever it is you are trying to evolve, and selection stores a function that will (usually randomly) select some subset of the population to be passed on to the mate method described earlier. Note that the population vector is guaranteed to be sorted with the best scoring population members at the front and the worst at the back.
+
+Experiments implements several functions to make running evolutionary algorithms easier. Full example workflows can be found in the examples folders. All code below comes from the example find_pi.rs
+
+### New
+To create a new expiriment use the following syntax (experiments need to be mutable).
+
+   
+      let mut my_exp = Experiment::new(size, selection);
+      
+Size is a usize that controls the size of the population, and selection is the function that will randomly select parents from the population vector.
+
