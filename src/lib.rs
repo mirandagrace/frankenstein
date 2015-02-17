@@ -48,13 +48,6 @@ impl<T: Evolvable, R: rand::Rng> Experiment<T, R> {
         &self.population[0]
     }
     
-    pub fn run_fitness(&mut self, threshold: f64){
-        loop {
-            if self.score() > threshold { break; }
-            self.trial();
-        }
-    }
-    
     pub fn run_until(&mut self, max_trials: usize, threshold: Option<f64>) {
         let mut n_trials = 0;
         loop {
