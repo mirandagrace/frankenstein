@@ -1,10 +1,13 @@
 extern crate rand;
+use std::iter::{FromIterator};
 use std::cmp::Ordering;
+use std::num::{Float, NumCast};
+use rand::distributions::{Weighted, WeightedChoice, Sample, IndependentSample};
 
 pub trait Evolvable : rand::Rand + Clone {
-    fn mate(Vec<&Self>) -> Self;
-    
     fn fitness(&self) -> f64;
+    
+    fn mate<R: rand::Rng>(&Self, &Self, &mut R) -> Self;
     
     fn rank(a: &Self, b: &Self) -> Ordering {
         b.fitness().partial_cmp(&a.fitness()).expect("Fitness returned NAN or similar value.")
@@ -12,29 +15,32 @@ pub trait Evolvable : rand::Rand + Clone {
 }
 
 #[derive(Clone)]
-pub struct Experiment<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> {
+pub struct Experiment<T: Evolvable, R: rand::Rng> {
     pub population: Vec<T>,
-    selection: F,
+    death_rate: usize,
+    rng: R,
 }
 
-impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
-    pub fn new(size: usize, selection: F) -> Experiment<T, F> {
+impl<T: Evolvable, R: rand::Rng> Experiment<T, R> {
+    pub fn new(size: usize, death_rate: usize, mut rng: R) -> Experiment<T, R> {
         let mut population: Vec<T> = Vec::with_capacity(size);
         loop {
-            population.push(rand::random());
+            population.push(rand::Rand::rand(&mut rng));
             if population.len() == size { break; }
         }
         population.sort_by(Evolvable::rank);
-        Experiment {population: population, selection: selection}
+        Experiment {population: population, death_rate: death_rate, rng: rng}
     }
     
-    pub fn reset(&mut self) {
-        let size = self.population.len();
-        self.population.clear();
-        loop {
-            self.population.push(rand::random());
-            if self.population.len() == size { break; }
-        }
+    fn mate(&mut self, mother: usize, father: usize) -> T {
+        Evolvable::mate(&self.population[mother], &self.population[father], &mut self.rng)
+    }
+    
+    fn make_weighted(&self, index: usize) -> Weighted<usize> {
+        let w = if index < self.death_rate { 
+            NumCast::from(Float::ceil(self.population[index].fitness())).expect("Unable to cast fitness to uint. Fitness must be >= 0")
+        } else { 0 };
+        Weighted { weight: w, item: index }
     }
     
     pub fn result(&self) -> &T {
@@ -70,15 +76,15 @@ impl<T: Evolvable, F: Fn(&Vec<T>) -> Vec<&T>> Experiment<T, F> {
         self.population[0].fitness()
     }
     
-    fn select(&self) -> Vec<&T> {
-        let ref f = self.selection;
-        f(&self.population)
-    }
-    
     pub fn trial(&mut self) {
+        let l = self.population.len();
+        let mut weighted: Vec<Weighted<usize>> = FromIterator::from_iter((0..l).map(|x| self.make_weighted(x)));
+        let wc = WeightedChoice::new(weighted.as_mut_slice());
         let mut children: Vec<T> = Vec::with_capacity(self.population.len());
         loop {
-            children.push(Evolvable::mate(self.select()));
+            let mother = wc.ind_sample(&mut self.rng);
+            let father = wc.ind_sample(&mut self.rng);
+            children.push(self.mate(mother, father));
             if children.len() == self.population.len() { break; }
         }
         children.sort_by(Evolvable::rank);
