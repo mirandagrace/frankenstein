@@ -80,6 +80,6 @@ This function allows the experiment to run for a single generation, i.e. one pas
 This function will run the experiment until either the maximum number of trials has been reached, or the function finds a population member whose fitness is above threshold. Threshold is an Option so that it can be set to None, in which case the experiment will run for the specified number of trials.
 
       
-      my_experiment.run_until(100, 3000.0): \\ will run for 100 trials, or until my_experiment.score() is greater 
-                                            \\ than 3000.0 whichever comes first. 
+      my_experiment.run_until(100, 3000.0): \\ will run for 100 trials, or until my_experiment.score() 
+                                            \\ is greater than 3000.0, whichever comes first. 
       my_experiment.run_until(100, None); \\ will run for 100 trials
