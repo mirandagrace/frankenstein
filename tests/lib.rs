@@ -28,7 +28,7 @@ impl Evolvable for EvolvableFloat {
         let x = m.value;
         let y = f.value;
         let mean = (x + y) / 2.0;
-        let normal = Normal::new(mean, 0.00001);
+        let normal = Normal::new(mean, 0.001);
         let mutated = normal.ind_sample(rng);
         EvolvableFloat::new(mutated)
     }
@@ -49,11 +49,11 @@ fn experiment_test() {
     let mut my_exp: Experiment<EvolvableFloat, rand::ThreadRng> = Experiment::new(10, 5, rand::thread_rng());
     assert_eq!(my_exp.population.len(), 10);
     let start_score = my_exp.population[0].fitness();
-    my_exp.run_trials(3);
+    my_exp.run_until(3, None);
     let end_score = my_exp.population[0].fitness();
     assert!(start_score < end_score, "start_score = {}, end_score = {}", start_score, end_score);
-    my_exp.run_trials(10);
-    assert!(Float::abs(my_exp.population[0].value - PI) < 0.1, "value = {}", my_exp.population[0].value);
+    my_exp.run_until(1000, Some(200.0));
+    assert!(my_exp.score() > 200.0, "value = {}", my_exp.population[0].value);
 }
 
 

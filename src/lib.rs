@@ -1,8 +1,9 @@
+#![feature(core)]
 extern crate rand;
 use std::iter::{FromIterator};
 use std::cmp::Ordering;
 use std::num::{Float, NumCast};
-use rand::distributions::{Weighted, WeightedChoice, Sample, IndependentSample};
+use rand::distributions::{Weighted, WeightedChoice, IndependentSample};
 
 pub trait Evolvable : rand::Rand + Clone {
     fn fitness(&self) -> f64;
@@ -54,19 +55,10 @@ impl<T: Evolvable, R: rand::Rng> Experiment<T, R> {
         }
     }
     
-    pub fn run_trials(&mut self, trials: usize) {
+    pub fn run_until(&mut self, max_trials: usize, threshold: Option<f64>) {
         let mut n_trials = 0;
         loop {
-            if n_trials == trials { break ; }
-            self.trial();
-            n_trials += 1;
-        }
-    }
-    
-    pub fn run_until(&mut self, trials: usize, threshold: f64) {
-        let mut n_trials = 0;
-        loop {
-            if n_trials == trials || self.score() > threshold { break ; }
+            if (n_trials == max_trials || (threshold.is_some() && self.score() >= threshold.unwrap_or(0.0))) { break ; };
             self.trial();
             n_trials += 1;
         }
