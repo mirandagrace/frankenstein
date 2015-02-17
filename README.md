@@ -47,41 +47,41 @@ Experiments implements several functions to make running evolutionary algorithms
 ### New
 To create a new expiriment use the following syntax (experiments need to be mutable).
 
-      let mut my_experiment = Experiment::new(size: usize, death_rate: usize, mut rng: R);
+      let mut my_exp = Experiment::new(size: usize, death_rate: usize, mut rng: R);
 
 Size is a usize that controls the size of the population. Death rate allows you to ensure that the last usize elements in the population array die off before they reproduce at all. The random number generator that you pass in will control all randomness in the Experiment. If you pass in a seeded random number generator, you should then be able to replicate your results.
 
 ### Result
 The result function returns a pointer to the most successful value currently in the population.
 
-      my_experiment.result(&self)
+      my_exp.result(&self)
       
 Since the population is always sorted, this is equivalent to:
 
-      &my_experiment.population[0]
+      &my_exp.population[0]
 
 If you want to save this value for posterity you will need to copy the data, because the population is all wiped from memory with each step. Trying to hold on to this reference will prevent you from running any more trials.
 
 ### Score
 The score function simply returns the fitness of the most successful element in the population at that time.
 
-      my_experiment.score()
+      my_exp.score()
       
 This function is equivalent to:
 
-      my_experiment.population[0].fitness()
+      my_exp.population[0].fitness()
 
 ### Trial
 This function allows the experiment to run for a single generation, i.e. one pass through steps 2-4 above.
 
-      my_experiment.trial()
+      my_exp.trial()
       
 ### Run Until
 This function will run the experiment until either the maximum number of trials has been reached, or the function finds a population member whose fitness is above threshold. Threshold is an Option so that it can be set to None, in which case the experiment will run for the specified number of trials.
 
       
-      my_experiment.run_until(100, 3000.0): \\ will run for 100 trials, 
-                                            \\ or until my_experiment.score() 
-                                            \\ is greater than 3000.0, 
-                                            \\ whichever comes first. 
-      my_experiment.run_until(100, None); \\ will run for 100 trials
+      my_exp.run_until(100, Some(3000.0)): \\ will run for 100 trials, 
+                                           \\ or until my_experiment.score() 
+                                           \\ is greater than 3000.0, 
+                                           \\ whichever comes first. 
+      my_exp.run_until(100, None); \\ will run for 100 trials
