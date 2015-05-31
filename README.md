@@ -13,7 +13,7 @@ Evolutionary algorithms are based on the biological idea of survival of the fitt
    
    5. Steps 2-4 are repeated a certain number of times, or until the fitness function climbs above a certain acceptable threshold. 
     
-You provide information about how to evaluate fitness, how to 'mate' objects, and a selection process. frankenstein will then set up an expiriement for you this is step 1. Then steps 2-4 can be automated in only a lines.
+You provide information about how to evaluate fitness, and how to mate objects. frankenstein will then set up an expiriement for you (this is step 1). Then steps 2-4 can be automated in only a few lines of code. Frankenstein will take care of the rest.
 
 ## The Evolvable Trait
 Frankenstein is highly customizable and makes almost no assumptions about the kind of creatures you are trying to create, only requiring that the members of your population have implemented the Evolvable trait.  This trait is how you pass along information about your fitness metric as well as your mating procedure. The Evolvable trait only requires two functions--fitness and mate--to be defined, however it also requires that the Rand trait already be implemented for the object in question.
