@@ -61,27 +61,27 @@ Size controls the size of the population. The random number generator that you p
 ### Result
 The result function returns a pointer to the most successful value currently in the population.
 
-      my_exp.result(&self)
+      let best_child = my_exp.result();
       
 Since the population is always sorted, this is equivalent to:
 
-      &my_exp.population[0]
+      let best_child = &my_exp.population[0]
 
 If you want to save this value for posterity you will need to copy the data, because the population is all wiped from memory with each step. Trying to hold on to this reference will prevent you from running any more trials.
 
 ### Score
 The score function simply returns the fitness of the most successful element in the population at that time.
 
-      my_exp.score()
+      let high_score = my_exp.score();
       
 This function is equivalent to:
 
-      my_exp.population[0].fitness()
+      let high_score = my_exp.population[0].fitness();
 
 ### Trial
 This function allows the experiment to run for a single generation, i.e. one pass through steps 2-4 above.
 
-      my_exp.trial(rng, None)
+      my_exp.trial(rng, None);
       
 This function takes two arguments: a mutable pointer to a random number generator that will control all the randomness involved in the procedure, and an Option<&Fn(&Vec<T:Evolvable>, &mut R)  -> (usize, usize)>. The option allows you to use a selection function other than the one defined in the trait if you so choose. If you pass None, then the selection function defined in the trait implementation.
       
@@ -90,11 +90,13 @@ This function takes four arguments: max_trial: usize, rng: &mut R: rand::Rng, th
 
       
       my_exp.run_until(100, rng, Some(3000.0),
-                       Some(&cust_select)): \\ will run for 100 trials, 
+                       Some(&cust_select)); \\ will run for 100 trials, 
                                             \\ or until my_experiment.score() 
                                             \\ is greater than 3000.0, 
                                             \\ whichever comes first. 
       my_exp.run_until(100, rng, None, None); \\ will run for 100 trials
 
-### Possible Future Features
-A library of commonly used selection function prototypes.
+# Possible Future Features
+These are features I may add in the future.
+   1. A library of commonly used selection functions.
+   2. More example use cases.
