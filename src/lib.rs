@@ -1,8 +1,6 @@
-#![feature(core)]
 extern crate rand;
 use std::iter::{FromIterator};
 use std::cmp::Ordering;
-use std::num::{Float, NumCast};
 use rand::distributions::{Weighted, WeightedChoice, IndependentSample};
 
 pub trait Evolvable : rand::Rand + Clone {
@@ -39,7 +37,10 @@ impl<T: Evolvable, R: rand::Rng> Experiment<T, R> {
     
     fn make_weighted(&self, index: usize) -> Weighted<usize> {
         let w = if index < self.death_rate { 
-            NumCast::from(Float::ceil(self.population[index].fitness())).expect("Unable to cast fitness to uint. Fitness must be >= 0")
+            let fit = self.population[index].fitness().ceil();
+            assert!(fit.is_finite(), "Unable to cast fitness to uint, Fitness is not finite.");
+            assert!(fit.is_sign_positive(), "Unable to cast fitness to uint. Fitness must be >= 0");
+            fit as u32
         } else { 0 };
         Weighted { weight: w, item: index }
     }
@@ -64,7 +65,7 @@ impl<T: Evolvable, R: rand::Rng> Experiment<T, R> {
     pub fn trial(&mut self) {
         let l = self.population.len();
         let mut weighted: Vec<Weighted<usize>> = FromIterator::from_iter((0..l).map(|x| self.make_weighted(x)));
-        let wc = WeightedChoice::new(weighted.as_mut_slice());
+        let wc = WeightedChoice::new(&mut weighted);
         let mut children: Vec<T> = Vec::with_capacity(self.population.len());
         loop {
             let mother = wc.ind_sample(&mut self.rng);

@@ -1,9 +1,7 @@
-#![feature(core)]
 extern crate frankenstein;
 extern crate rand;
 pub use self::frankenstein::*;
 pub use std::f64::consts::PI;
-pub use std::num::Float;
 use self::rand::distributions::*;
 
 #[derive(Clone, Debug)]
@@ -34,7 +32,7 @@ impl Evolvable for EvolvableFloat {
     }
 
     fn fitness(&self) -> f64 {
-        1.0 / Float::abs(self.value - PI)
+        1.0 / (self.value - PI).abs()
     }
 }
 
